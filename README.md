@@ -1,100 +1,194 @@
-#Holberton School - 0x18-stacks_queues_lifo_fifo
+# ​🧑‍💻​  C - Stacks, Queues - LIFO, FIFO
+## Learning Objectives
+------------
+At the end of this project, you are expected to be able to explain to anyone, without the help of Google:
 
-## Setup 
-####Monty interpreter
-This command will be used to compile the monty interpreter:
-``gcc -Wall -Werror -Wextra -pedantic *.c -o monty``
-Please use gcc-4.8
+### General
+- What do LIFO and FIFO mean
+- What is a stack, and when to use it
+- What is a queue, and when to use it
+- What are the common implementations of stacks and queues
+- What are the most common use cases of stacks and queues
+- What is the proper way to use global variables
 
-####Brainfuck programs
-To Install the brainfuck interpreter:
-``sudo apt-get install bf``
+## Requirements
+------------
+### General
 
-## Usage
-####Monty interpreter
-The Monty language is a very simple programming language. Monty relies on a unique stack of integers and performs some operations.  
-Usage is : `./monty FILE` where `FILE` contains lines of commands.  
-Lines are of the type `opcode [argument]`.  
-Current opcodes are:  
-1. `push` push onto stack. This opcode is the only one requiring an argument. This argument must be an integer.  
-2. `pall` print all stack.  
-3. `pop` pop the value at the top of the stack.  
-4. `pint` peek the top of the stack.  
-5. `pchar` peek, turning the value into an ascii character if possible.  
-6. `add` pop the 2 elements at the top, push the result of the addition on the stack.  
-7. `sub` pop the 2 elements at the top, push the result of the subtraction on the stack.  
-8. `mul` pop the 2 elements at the top, push the result of the multiplication on the stack.  
-9. `div` pop the 2 elements at the top, push the result of the division on the stack.  
-10. `mod` pop the 2 elements at the top, push the modulo on the stack.   
-11. `swap` swap the top 2 elements of the stack.  
-12. `rotl` move the top element to the bottom of the stack.  
-13. `rotr` move the element at the bottom of the stack to the top.  
-14. `pstr` print the whole stack as a string if possible.  
-15. `queue` change the functionment of the stack to one of a queue. Enqueue to the bottom of the stack and dequeue from the top.  
-16. `stack` is the reverse of queue, it reestablishes the stack.  
-17. `nop` does not do anything
-<br>
-The Monty language allows for any space before or after the opcode and its argument. Any text after the argument is disregarded.  
-Any line starting with a `#` is considered a comment.  
-Currently the stack is implemented as a doubly linked list.  
-For calculations. If `a` is the first value popped and `b` the second one, the expression evaluated is `b` operator `a`. Hence `a` must be not `0` for divisions and modulo.  
-If the user attempts to perform an illegal operation an error message is displayed and the program exits with status `EXIT_FAILURE`.
+- Allowed editors: `vi`, `vim`, `emacs`
+- All your files will be compiled on Ubuntu 20.04 LTS using gcc, using the options `-Wall -Werror -Wextra -pedantic -std=gnu89`.
+- All your files should end with a new line.
+- A README.md file, at the root of the folder of the project is mandatory.
+- Your code should use the Betty style. It will be checked using betty-style.pl and betty-doc.pl
+- You allowed to use a maximum of one global variable.
+- No more than 5 functions per file.
+- You are allowed to use the C standard library.
+- The prototypes of all your functions should be included in your header file called monty.h.
+- All your header files should be include guarded
 
-####Brainfuck program
-in the brainfuck folder: `bf FILE`.  
+## More Info
+------------
+### Data Structures
 
-## Description of Files
-<h6>monty.h</h6>
-header file for the project, contains the structs used throughout.  
+```
+    /**
+     * struct stack_s - doubly linked list representation of a stack (or queue)
+     * @n: integer
+     * @prev: points to the previous element of the stack (or queue)
+     * @next: points to the next element of the stack (or queue)
+     *
+     * Description: doubly linked list node structure
+     * for stack, queues, LIFO, FIFO
+     */
+    typedef struct stack_s
+    {
+            int n;
+            struct stack_s *prev;
+            struct stack_s *next;
+    } stack_t;
+```
+```
+/**
+ * struct instruction_s - opcode and its function
+ * @opcode: the opcode
+ * @f: function to handle the opcode
+ *
+ * Description: opcode and its function
+ * for stack, queues, LIFO, FIFO
+ */
+typedef struct instruction_s
+{
+        char *opcode;
+        void (*f)(stack_t **stack, unsigned int line_number);
+} instruction_t;
+```
+## Compilation & Output
+----
+The code will be compiled this way:
 
-<h6>main.c</h6>
-Entry point of the interpreter. Feeds a line at a time to `execute`
+``` $ gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o monty ```
 
-<h6>execute.c</h6>
-Dispatch the line received from main to the function behind the opcode.
+- Any output must be printed on stdout
+- Any error message must be printed on stderr
 
-<h6>push_and_pop.c</h6>
-Contains `push` and `pop` opcodes
+## ​💥​ The Monty language
+-----
+Monty 0.98 is a scripting language that is first compiled into Monty byte codes (Just like Python). It relies on a unique stack, with specific instructions to manipulate it. The goal of this project is to create an interpreter for Monty ByteCodes files.
+### Monty byte code files
+---
+Files containing Monty byte codes usually have the `.m `extension. Most of the industry uses this standard but it is not required by the specification of the language. There is not more than one instruction per line. There can be any number of spaces before or after the opcode and its argument:
+```
+group_luis_carlos@ubuntu:~/monty$ cat -e bytecodes/000.m
+push 0$
+push 1$
+push 2$
+  push 3$
+                   pall    $
+push 4$
+    push 5    $
+      push    6        $
+pall$
+group_luis_carlos@ubuntu:~/monty$
+```
+Monty byte code files can contain blank lines (empty or made of spaces only, and any additional text after the opcode or its required argument is not taken into account:
+```
+group_luis_carlos@ubuntu:~/monty$ cat -e bytecodes/001.m
+push 0 Push 0 onto the stack$
+push 1 Push 1 onto the stack$
+$
+push 2$
+  push 3$
+                   pall    $
+$
+$
+                           $
+push 4$
+$
+    push 5    $
+      push    6        $
+$
+pall This is the end of our program. Monty is awesome!$
+group_luis_carlos@ubuntu:~/monty$
+```
 
-<h6>calculations.c</h6>
-contains `add`, `sub`, `mul`, `div` and `mod` opcodes.  
+### The monty program
+---
+- Usage: `monty file`
+    - where `file` is the path to the file containing Monty byte code.
+- If the user does not give any file or more than one argument to your program, print the error message `USAGE: monty file`, followed by a new line, and exit with the status `EXIT_FAILURE`.
+- If, for any reason, it’s not possible to open the file, print the error message `Error: Can't open file <file>`, followed by a new line, and exit with the status `EXIT_FAILURE`
+    - where `<file>` is the name of the file.
+- If the file contains an invalid instruction, print the error message `L<line_number>: unknown instruction <opcode>`, followed by a new line, and exit with the status `EXIT_FAILURE`.
+    - Where is the line number where the instruction appears.
+    - Line numbers always start at 1.
+- The monty program runs the bytecodes line by line and stop if either:
+    - it executed properly every line of the file
+    - it finds an error in the file
+    - an error occured
+- If you can’t malloc anymore, print the error message `Error: malloc failed`, followed by a new line, and exit with status `EXIT_FAILURE`.
+- You have to use `malloc` and `free` and are not allowed to use any other function from `man malloc` (realloc, calloc, …)
 
-<h6>print_functions.c</h6>
-Contains `pint`, `pall`, `pchar` and `pstr` opcodes.
+## Opcodes
+---
+| Opcode | Description                    |
+| ------------- | ------------------------------ |
+| `push`      | The opcode push pushes an element to the stack.       |
+| `pall`   | The opcode pall prints all the values on the stack, starting from the top of the stack.     |
+| `pint`      | The opcode pint prints the value at the top of the stack, followed by a new line.       |
+| `pop`   | The opcode pop removes the top element of the stack.    |
+| `swap`      | The opcode swap swaps the top two elements of the stack.       |
+| `add`   | The opcode add adds the top two elements of the stack.     |
+| `nop`      | The opcode nop doesn’t do anything.       |
+| `sub`   | The opcode sub subtracts the top element of the stack from the second top element of the stack.     |
+| `div`      | The opcode div divides the second top element of the stack by the top element of the stack.       |
+| `mul`   | The opcode mul multiplies the second top element of the stack with the top element of the stack.     |
+| `mod`      | The opcode mod computes the rest of the division of the second top element of the stack by the top element of the stack.       |
+| `pchar`   | The opcode pchar prints the char at the top of the stack, followed by a new line.     |
+| `pstr`      | The opcode pstr prints the string starting at the top of the stack, followed by a new line.       |
+| `rotl`   | The opcode rotl rotates the stack to the top.     |
+| `rotr`      | The opcode rotr rotates the stack to the bottom.       |
+| `stack`   | The opcode stack sets the format of the data to a stack (LIFO). This is the default behavior of the program.     |
+| `queue`   | The opcode queue sets the format of the data to a queue (FIFO).     |
 
-<h6>nopandqueue.c</h6>
-Contains `nop`, `stack` and `queue` opcodes.
+## 🧑‍💼​ PROJECT FILES
+---
 
-<h6>move_elements_functions.c</h6>
-Contains `swap`, `rotr` and `rotr` opcodes.
+| Files | Description                    |
+| ------------- | ------------------------------ |
+| [main.c](https://github.com/luismch158158/monty/blob/master/main.c "main.c")      | Main function and check_blank function, |
+| [monty.h](https://github.com/luismch158158/monty/blob/master/monty.h "monty.h")      | Header of function prototypes.       |
+| [functions-0.c](https://github.com/luismch158158/monty/blob/master/functions-0.c "functions-0.c")      | Functions like: command_builder and m_com (comments)|
+| [choose_option.c](https://github.com/luismch158158/monty/blob/master/choose_option.c "main.c")      | Functions like: m_push, m_pall, execute_ops and freell.       |
+| [choose_option_2.c](https://github.com/luismch158158/monty/blob/master/choose_option_2.c "choose_option_2.c")      | Functions like: mega_pint, m_pop, m_swap, m_add, m_nop.|
+| [choose_option_3.c](https://github.com/luismch158158/monty/blob/master/choose_option_3.c "choose_option_3.c")      | Functions like: m_sub, m_div, m_mul, m_mod, m_pchar.|
+| [choose_option_4.c](https://github.com/luismch158158/monty/blob/master/choose_option_4.c "choose_option_4.c")      | Functions like: m_pstr, isint, m_rotl, m_rotr, m_queue|
+| [choose_option_5.c](https://github.com/luismch158158/monty/blob/master/choose_option_5.c "choose_option_5.c")      | Functions like: m_stack, m_pushq|
 
-<h6>basic_linked_list_functions.c</h6>
-The stack is implemented as a doubly linked list. This file contains the functions needed to add elements, remove elements and free a doubly linked list.  
+# 🧠​ Brainf*ck script
+Brainfuck is an esoteric programming language created in 1993 by Urban Müller.
 
-<h6>helpers.c</h6>
-This file contains helper functions to deal with a string.
+Notable for its extreme minimalism, the language consists of only eight simple commands, a data pointer and an instruction pointer. While it is fully Turing complete, it is not intended for practical use, but to challenge and amuse programmers. 
 
-<h6>getline.c</h6>
-Our implementation of getline to read a line from a file.
+Brainf*ck simply requires one to break commands into microscopic steps.
 
-<h5>brainfuck/</h5>
-The brainfuck folder contains:
-<h6>1000-holberton.bf</h6>
-Print `Holberton` in bf.  
+The language's name is a reference to the slang term brainfuck, which refers to things so complicated or unusual that they exceed the limits of one's understanding.
 
-<h6>1000-add.bf</h6>
-Add 2 single digit numbers whose result is less than 10 in bf.  
+You can install the bf interpreter to test your code: sudo apt-get install bf
 
-<h6>1000-mul.bf</h6>
-Multiply 2 single digits numbers whose result is less than 10 in bf.
+This script is in bf folder.
 
-## Bugs
-Who doesn't ?
-Currently the interpreter relies on the `atoi` function from the C standard library and overflows are not handled. This default functionment is repeated for calculations, overflows are not handled there either.  
+## Scripts
+---
 
-## Links
-[Brainfuck](https://en.wikipedia.org/wiki/Brainfuck)
+| Files | Description                    |
+| ------------- | ------------------------------ |
+| [1000-school.bf](https://github.com/luismch158158/monty/blob/master/bf/1000-school.bf "1000-school.bf")      | Write a Brainf*ck script that prints School, followed by a new line |
+| [1001-add.bf](https://github.com/luismch158158/monty/blob/master/bf/1001-add.bf "1001-add.bf")      | Add two digits given by the user.|
+| [1002-mul.bf](https://github.com/luismch158158/monty/blob/master/bf/1002-mul.bf "1002-mul.bf")      | Multiply two digits given by the user.|
+| [1003-mul.bf](https://github.com/luismch158158/monty/blob/master/bf/1003-mul.bf "1003-mul.bf")      | Read the two digits from stdin, multiply them, and print the result, followed by a new line.|
 
 ## Authors
-* **Ian Liu-Johnston** [Personal Website:](http://ianxaunliu-johnston.com) || [Twitter](https://twitter.com/Concativerse) || [LinkedIn](https://www.linkedin.com/in/ian-liu-johnston-32a40a115)
-* **Anne Cognet** [Personal Website:] || [Twitter](https://twitter.com/1million40) || [Github](https://github.com/anne75) || [LinkedIn](https://www.linkedin.com/in/cognetanne)
+---
+- Carlos Soria - [Soria-c](https://github.com/Soria-c "Soria-c")
+
+- Luis Manrique - [luismch158158](https://github.com/luismch158158 "luismch158158")
